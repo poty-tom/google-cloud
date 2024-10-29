@@ -9,8 +9,8 @@ async fn index() -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // host server setting
-    let host = "0.0.0.0";
-    let port = 8080;
+    let host = std::env::var("HOSTNAME").unwrap_or_else(|_| "0.0.0.0".to_string());
+    let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_string());
 
     // add middleware
     env_logger::init_from_env(Env::default().default_filter_or("info"));
@@ -20,7 +20,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::new("%a %{User-Agent}i"))
             .service(index)
     })
-    .bind((host, port))?
+    .bind(format!("{}:{}", host, port))?
     .run()
     .await
 }
